@@ -1,7 +1,7 @@
 #include "matrixMult.cu"
 
 int main(int argc, char **argv){
-	float *res = matrixMultDevice(1024,256);
+	float *res = matrixMultDevice(1024,16);
 
 	int tam = 1024*1024;
 

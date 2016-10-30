@@ -3,24 +3,25 @@
 
 float * MultiplicaMatriz(float * matA, float * matB, int tam, int rep)
 {
-	int i=0, j=0;
+	int i,j,k,lugar;
 	float* matriz = (float*)malloc((tam*tam)*(sizeof(float)));
+	float cValue = 0;
 	
 	/* matriz é a matriz resultado que queremos que seja a multiplicação de
 	 * matA por matB nesta ordem.
 	*/
+
+	lugar = 0;
 	
-	for(i=0; i<rep; i++)
-	{
-		if((i % 2)==0)
-		{
-			matriz = MultiplicaMatriz(matriz, matA,tam,0);
+	for(i=0;i<rep;i++)
+		for(j=0;j<tam;j++){
+			for(k=0;k<tam;k++){
+				cValue+=matA[j*tam+k] * matB[k*tam+j];
+			}
+			matriz[lugar]=cValue;
+			lugar++;
+			cValue = 0;
 		}
-		else
-		{
-			matriz = MultiplicaMatriz(matriz, matB,tam,0);
-		}
-	}
 	
 	return matriz;
 }

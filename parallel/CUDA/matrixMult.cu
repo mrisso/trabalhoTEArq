@@ -3,7 +3,8 @@
 //kernel
 __global__ void matrixMultKernel(float *dC, float *dA, float *dB, int width){ 
 	//Cálculo de linha e coluna
-	int lin = blockIdx.y*blockDim.y+ threadIdx.y; int col = blockIdx.x*blockDim.x+ threadIdx.x;
+	int lin = blockIdx.y*blockDim.y+ threadIdx.y;
+	int col = blockIdx.x*blockDim.x+ threadIdx.x;
 
 	float cValue = 0; //Acumulador
 
@@ -45,8 +46,8 @@ float *matrixMultDevice(int width, int tileW){
 	}
 
 	//--> Populando matrizes A e B
-	popularMatriz(hA,size,1.0);
-	popularMatriz(hB,size,1.0);
+	popularMatriz(hA,size,1.0f);
+	popularMatriz(hB,size,0.01f);
 
 	//Alocar matrizes no device
 	float *dA,*dB,*dC;
