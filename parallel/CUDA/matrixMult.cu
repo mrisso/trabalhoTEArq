@@ -1,19 +1,40 @@
+#define DEBUG					1
+#define TILE_WIDTH				4 //Tamanho do ladrilho é definido aqui para a utilização de memória compartilhada
+
 #include "matrixMult.cuh"
 
 //kernel
 __global__ void matrixMultKernel(float *dC, float *dA, float *dB, int width){ 
-	//Cálculo de linha e coluna
-	int lin = blockIdx.y*blockDim.y+ threadIdx.y;
-	int col = blockIdx.x*blockDim.x+ threadIdx.x;
 
+	//Utilizar memória compartilhada para o ladrilho
+	__shared__ float dAs[TILE_WIDTH][TILE_WIDTH];
+	__shared__ float dBs[TILE_WIDTH][TILE_WIDTH];
+
+	int bx = blockIdx.x; int by = blockIdx.y;
+	int tx = threadIdx.x; int ty = threadIdx.y;
+
+	int begin = width * TILE_WIDTH * by;
+	int end = begin + width - 1;
+
+	//Cálculo de linha e coluna
+	int lin = by * TILE_WIDTH + ty;
+	int col = bx * TILE_WIDTH + tx;
+	
 	float cValue = 0; //Acumulador
 
-	//Cálculo para cada thread (um elemento do ladrilho)
-	for(int k = 0; k < width; k++){
-		cValue += dA[lin*width + k] * dB[k*width + col];
+	//Cálculo
+	for(int k = (begin);k <= end; k+=TILE_WIDTH){
+		dAs[ty][tx] = dA[lin * width + (k * TILE_WIDTH + tx)];
+		dBs[ty][tx] = dB[(k * TILE_WIDTH + ty) * width + col];
+		__syncthreads();
+
+		for(int i = 0; i<TILE_WIDTH; i++)
+			cValue += dAs[ty][k] * dBs[k][tx];
+		__syncthreads();
 	}
 
-	dC[lin*width + col] = cValue; //Resultado
+	int c = width * TILE_WIDTH * by + TILE_WIDTH * bx;
+	dC[c + width * ty + tx] = cValue; //Resultado
 }
 
 //Auxiliar para popular matrizes
@@ -23,8 +44,9 @@ void popularMatriz(float *matriz, int tam, float valor){
 	}
 }
 
-float *matrixMultDevice(int width, int tileW){
+float *matrixMultDevice(int width){
 	int size = width*width;
+	int i;
 
 	//Arranjar matrizes no host
 	float *hA = (float*) malloc(size*sizeof(float));
@@ -49,26 +71,80 @@ float *matrixMultDevice(int width, int tileW){
 	popularMatriz(hA,size,1.0f);
 	popularMatriz(hB,size,0.01f);
 
+	if(DEBUG){
+		for(i=0;i<size;i++){
+			if((i%width)==0 && i>0)
+				printf("\n\t%.2f",hA[i]);
+			else
+				printf("\t%.2f",hA[i]);
+		}
+
+		printf("\n\n");
+
+		for(i=0;i<size;i++){
+			if((i%width)==0 && i>0)
+				printf("\n\t%.2f",hB[i]);
+			else
+				printf("\t%.2f",hB[i]);
+		}
+		printf("\n\n");
+	}
+
 	//Alocar matrizes no device
 	float *dA,*dB,*dC;
 
-	cudaMalloc(&dA,size);
-	cudaMemcpy(dA,hA,size,cudaMemcpyHostToDevice);
+	cudaError_t error;
 
-	cudaMalloc(&dB,size);
-	cudaMemcpy(dB,hB,size,cudaMemcpyHostToDevice);
+	error = cudaMalloc((void **) &dA,size);
+    if (error != cudaSuccess)
+    {
+        printf("cudaMalloc d_A returned error %s (code %d), line(%d)\n", cudaGetErrorString(error), error, __LINE__);
+        exit(EXIT_FAILURE);
+    }
 
-	cudaMalloc(&dC,size);
+	error = cudaMalloc((void **)&dB,size);
+    if (error != cudaSuccess)
+    {
+        printf("cudaMalloc d_B returned error %s (code %d), line(%d)\n", cudaGetErrorString(error), error, __LINE__);
+        exit(EXIT_FAILURE);
+    }
+
+	error = cudaMalloc((void **)&dC,size);
+    if (error != cudaSuccess)
+    {
+        printf("cudaMalloc d_C returned error %s (code %d), line(%d)\n", cudaGetErrorString(error), error, __LINE__);
+        exit(EXIT_FAILURE);
+    }
+
+	//Copying memory to device
+	error = cudaMemcpy(dA,hA,size,cudaMemcpyHostToDevice);
+    if (error != cudaSuccess)
+    {
+        printf("cudaMemcpy (d_A,h_A) returned error %s (code %d), line(%d)\n", cudaGetErrorString(error), error, __LINE__);
+        exit(EXIT_FAILURE);
+    }
+
+	error = cudaMemcpy(dB,hB,size,cudaMemcpyHostToDevice);
+    if (error != cudaSuccess)
+    {
+        printf("cudaMemcpy (d_B,h_B) returned error %s (code %d), line(%d)\n", cudaGetErrorString(error), error, __LINE__);
+        exit(EXIT_FAILURE);
+    }
 	
 	//Configurar execução
-	dim3 dimGrid(width/tileW,width,tileW);
-	dim3 dimBlock(tileW,tileW);
+	dim3 dimGrid(width/TILE_WIDTH,width/TILE_WIDTH);
+	dim3 dimBlock(TILE_WIDTH,TILE_WIDTH);
 
 	//Realizar multiplicação
 	matrixMultKernel<<<dimGrid, dimBlock>>>(dC,dA,dB,width);
 
 	//Copiar resultado para o host
-	cudaMemcpy(hC,dC,size,cudaMemcpyDeviceToHost);
+	error = cudaMemcpy(hC,dC,size,cudaMemcpyDeviceToHost);
+    if (error != cudaSuccess)
+    {
+        printf("cudaMemcpy (h_C,d_C) returned error %s (code %d), line(%d)\n", cudaGetErrorString(error), error, __LINE__);
+        exit(EXIT_FAILURE);
+    }
 
 	cudaFree(dA);
 	cudaFree(dB);
