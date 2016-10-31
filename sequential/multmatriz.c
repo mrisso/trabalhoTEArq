@@ -3,7 +3,7 @@
 
 float * MultiplicaMatriz(float * matA, float * matB, int tam, int rep)
 {
-	int i,j,k,lugar;
+	int i,j,k,lugar,r;
 	float* matriz = (float*)malloc((tam*tam)*(sizeof(float)));
 	float cValue = 0;
 	
@@ -13,16 +13,19 @@ float * MultiplicaMatriz(float * matA, float * matB, int tam, int rep)
 
 	lugar = 0;
 	
-	for(i=0;i<rep;i++)
+		for(r = 0; r<rep; r++)
 		for(j=0;j<tam;j++)
 		{
-			for(k=0;k<tam;k++)
-			{
-				cValue+=matA[j*tam+k] * matB[k*tam+j];
+			for(i=0;i<tam;i++){
+				for(k=0;k<tam;k++)
+				{
+					printf("%d %d\n",(j*tam+k),(k*tam+i));
+					cValue+=matA[j*tam+k] * matB[k*tam+i];
+				}
+				matriz[lugar]=cValue;
+				lugar++;
+				cValue = 0;
 			}
-			matriz[lugar]=cValue;
-			lugar++;
-			cValue = 0;
 		}
 		
 	for(i=0;i<tam*tam;i++)
