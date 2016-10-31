@@ -23,6 +23,7 @@ __global__ void matrixMultKernel(float *dC, float *dA, float *dB, int width){
 	float cValue = 0; //Acumulador
 
 	//Cálculo
+	__syncthreads();
 	for(int k = (begin);k <= end; k+=TILE_WIDTH){
 		dAs[ty][tx] = dA[lin * width + (k * TILE_WIDTH + tx)];
 		dBs[ty][tx] = dB[(k * TILE_WIDTH + ty) * width + col];
@@ -47,21 +48,22 @@ void popularMatriz(float *matriz, int tam, float valor){
 float *matrixMultDevice(int width){
 	int size = width*width;
 	int i;
+	int sizeM = size*sizeof(float);
 
 	//Arranjar matrizes no host
-	float *hA = (float*) malloc(size*sizeof(float));
+	float *hA = (float*) malloc(sizeM);
 	if(hA==NULL){
 		printf("Malloc error on host!\n");
 		exit(MALLOC_ERROR);
 	}
 
-	float *hB = (float*) malloc(size*sizeof(float));
+	float *hB = (float*) malloc(sizeM);
 	if(hB==NULL){
 		printf("Malloc error on host!\n");
 		exit(MALLOC_ERROR);
 	}
 
-	float *hC = (float*) malloc(size*sizeof(float));
+	float *hC = (float*) malloc(sizeM);
 	if(hC==NULL){
 		printf("Malloc error on host!\n");
 		exit(MALLOC_ERROR);
@@ -95,21 +97,21 @@ float *matrixMultDevice(int width){
 
 	cudaError_t error;
 
-	error = cudaMalloc((void **) &dA,size);
+	error = cudaMalloc((void **) &dA,sizeM);
     if (error != cudaSuccess)
     {
         printf("cudaMalloc d_A returned error %s (code %d), line(%d)\n", cudaGetErrorString(error), error, __LINE__);
         exit(EXIT_FAILURE);
     }
 
-	error = cudaMalloc((void **)&dB,size);
+	error = cudaMalloc((void **)&dB,sizeM);
     if (error != cudaSuccess)
     {
         printf("cudaMalloc d_B returned error %s (code %d), line(%d)\n", cudaGetErrorString(error), error, __LINE__);
         exit(EXIT_FAILURE);
     }
 
-	error = cudaMalloc((void **)&dC,size);
+	error = cudaMalloc((void **)&dC,sizeM);
     if (error != cudaSuccess)
     {
         printf("cudaMalloc d_C returned error %s (code %d), line(%d)\n", cudaGetErrorString(error), error, __LINE__);
@@ -117,14 +119,14 @@ float *matrixMultDevice(int width){
     }
 
 	//Copying memory to device
-	error = cudaMemcpy(dA,hA,size,cudaMemcpyHostToDevice);
+	error = cudaMemcpy(dA,hA,sizeM,cudaMemcpyHostToDevice);
     if (error != cudaSuccess)
     {
         printf("cudaMemcpy (d_A,h_A) returned error %s (code %d), line(%d)\n", cudaGetErrorString(error), error, __LINE__);
         exit(EXIT_FAILURE);
     }
 
-	error = cudaMemcpy(dB,hB,size,cudaMemcpyHostToDevice);
+	error = cudaMemcpy(dB,hB,sizeM,cudaMemcpyHostToDevice);
     if (error != cudaSuccess)
     {
         printf("cudaMemcpy (d_B,h_B) returned error %s (code %d), line(%d)\n", cudaGetErrorString(error), error, __LINE__);
@@ -139,7 +141,7 @@ float *matrixMultDevice(int width){
 	matrixMultKernel<<<dimGrid, dimBlock>>>(dC,dA,dB,width);
 
 	//Copiar resultado para o host
-	error = cudaMemcpy(hC,dC,size,cudaMemcpyDeviceToHost);
+	error = cudaMemcpy(hC,dC,sizeM,cudaMemcpyDeviceToHost);
     if (error != cudaSuccess)
     {
         printf("cudaMemcpy (h_C,d_C) returned error %s (code %d), line(%d)\n", cudaGetErrorString(error), error, __LINE__);
