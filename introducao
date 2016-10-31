@@ -1,0 +1,3 @@
+Neste projeto iremos comparar o desempenho de uma tarefa(multiplicação de matrizes) por comandos sequenciais utilizando a linguagem C normalmente e por comandos em computação paralela utilizando CUDA.
+CUDA (Compute Unified Device Architeture) é uma plataforma de computação paralela inventada pela NVIDEA. É utilizada como uma extensão da linguagem C com objetivo de aproveitar a unidade de processamento gráfico (GPU), possibilitando aumentos significativos de desempenho computacional.
+Computação paralela...
