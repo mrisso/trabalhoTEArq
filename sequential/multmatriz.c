@@ -1,3 +1,7 @@
+#define DEBUG 					0
+#define ERRO_N_ARGS				1
+#define OK						0
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -36,29 +40,39 @@ float * MultiplicaMatriz(float * matA, float * matB, int tam, int rep) //Funçã
 
 int main (int argc, char *argv[])
 {
-	int i=0,j=0;
+	if(argc!=3){
+		printf("Modo de uso: %s <tamanho-da-matriz> <numero-de-repeticoes>\n",argv[0]);
+		return ERRO_N_ARGS;
+	}
+
+	int i;
 	int tam = atoi(argv[1]);
 	int rep = atoi(argv[2]);
-	
+
 	float * matA = (float*)malloc(tam*tam*sizeof(float));
 	float * matB = (float*)malloc(tam*tam*sizeof(float));
 	float * matriz;// = (float*)malloc(tam*tam*sizeof(float));
 	
 	for(i=0;i<tam*tam;i++)
 	{
-		matA[i] = 1;//((float)i+5)/7;
+		matA[i] = 1.0f;//((float)i+5)/7;
 	}
-	i=0;
 
-	
 	for(i=0;i<tam*tam;i++)
 	{
-		matB[i] = 2;//((float)i+4)/3;
+		matB[i] = 0.01f;//((float)i+4)/3;
 	}
 	
 	matriz = MultiplicaMatriz(matA, matB, tam, rep);
+	if(DEBUG)
+		for(i=0;i<tam*tam;i++){
+			if((i%tam)==0 && i>0)
+				printf("\n\t%.2f",matriz[i]);
+			else
+				printf("\t%.2f",matriz[i]);
+		}
 	free(matA);
 	free(matB);
 	free(matriz);
-	return 0;
+	return OK;
 }
