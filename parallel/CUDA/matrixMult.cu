@@ -13,9 +13,6 @@ __global__ void matrixMultKernel(float *dC, float *dA, float *dB, int width){
 	int bx = blockIdx.x; int by = blockIdx.y;
 	int tx = threadIdx.x; int ty = threadIdx.y;
 
-	int begin = width * TILE_WIDTH * by;
-	int end = begin + width - 1;
-
 	//Cálculo de linha e coluna
 	int lin = by * TILE_WIDTH + ty;
 	int col = bx * TILE_WIDTH + tx;
@@ -24,7 +21,7 @@ __global__ void matrixMultKernel(float *dC, float *dA, float *dB, int width){
 
 	//Cálculo
 	__syncthreads();
-	for(int k = (begin);k <= end; k+=TILE_WIDTH){
+	for(int k = 0;k < width/TILE_WIDTH ; k++){
 		dAs[ty][tx] = dA[lin * width + (k * TILE_WIDTH + tx)];
 		dBs[ty][tx] = dB[(k * TILE_WIDTH + ty) * width + col];
 		__syncthreads();
@@ -34,8 +31,7 @@ __global__ void matrixMultKernel(float *dC, float *dA, float *dB, int width){
 		__syncthreads();
 	}
 
-	int c = width * TILE_WIDTH * by + TILE_WIDTH * bx;
-	dC[c + width * ty + tx] = cValue; //Resultado
+	dC[lin * width + col] = cValue; //Resultado
 }
 
 //Auxiliar para popular matrizes
