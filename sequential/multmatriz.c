@@ -14,15 +14,26 @@ float * MultiplicaMatriz(float * matA, float * matB, int tam, int rep)
 	lugar = 0;
 	
 	for(i=0;i<rep;i++)
-		for(j=0;j<tam;j++){
-			for(k=0;k<tam;k++){
+		for(j=0;j<tam;j++)
+		{
+			for(k=0;k<tam;k++)
+			{
 				cValue+=matA[j*tam+k] * matB[k*tam+j];
 			}
 			matriz[lugar]=cValue;
 			lugar++;
 			cValue = 0;
 		}
-	
+		
+	for(i=0;i<tam*tam;i++)
+	{
+		if(((i % (tam)) ==0) && i>0)
+			printf("\n\t%.2f", matriz[i]);
+		else
+			printf("\t%.2f", matriz[i]);
+	}
+	printf("\n");
+	printf("\n");
 	return matriz;
 }
 
@@ -38,19 +49,48 @@ int main (int argc, char *argv[])
 	
 	for(i=0;i<tam*tam;i++)
 	{
-		matA[i] = ((float)i+5)/7;
+		matA[i] = 1;//((float)i+5)/7;
 	}
 	i=0;
 
 	
 	for(i=0;i<tam*tam;i++)
 	{
-		matB[i] = ((float)i+4)/3;
+		matB[i] = 2;//((float)i+4)/3;
 	}
 	printf("\n");
 	
 	matriz = MultiplicaMatriz(matA, matB, tam, rep);
 	
-
+	for(i=0;i<tam*tam;i++)
+	{
+		if(((i % (tam)) ==0) && i>0)
+			printf("\n\t%.2f", matB[i]);
+		else
+			printf("\t%.2f", matB[i]);
+	}
+	printf("\n");
+	printf("\n");
+	printf("\n");
+	for(i=0;i<tam*tam;i++)
+	{
+		if(((i % (tam)) ==0) && i>0)
+			printf("\n\t%.2f", matA[i]);
+		else
+			printf("\t%.2f", matA[i]);
+	}
+	printf("\n");
+	printf("\n");
+	printf("\n");
+	for(i=0;i<tam*tam;i++)
+	{
+		if(((i % (tam)) ==0) && i>0)
+			printf("\n\t%.2f", matriz[i]);
+		else
+			printf("\t%.2f", matriz[i]);
+	}
+	printf("\n");
+	printf("\n");
+	printf("\n");
 	return 0;
 }
