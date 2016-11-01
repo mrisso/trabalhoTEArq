@@ -15,19 +15,20 @@ float * multiplicaMatriz(float * matA, float * matB, int width, int rep) //Funç
 	 * matA por matB nesta ordem.
 	 */
 
-	lugar = 0;
 	
-		for(r = 0; r<rep; r++)//Este for serve para repetir a multiplicação rep vezes afim de calcular o tempo para comparação com o CUDA
-		for(i=0;i<width;i++)
-		{
-			for(j=0;j<width;j++){
-				for(k=0;k<width;k++)
-				{
-					cValue+=matA[i*width+k] * matB[k*width+j];
+		for(r = 0; r<rep; r++){ //Este for serve para repetir a multiplicação rep vezes afim de calcular o tempo para comparação com o CUDA
+			lugar = 0;
+			for(i=0;i<width;i++)
+			{
+				for(j=0;j<width;j++){
+					for(k=0;k<width;k++)
+					{
+						cValue+=matA[i*width+k] * matB[k*width+j];
+					}
+					matriz[lugar]=cValue;
+					lugar++;
+					cValue = 0;
 				}
-				matriz[lugar]=cValue;
-				lugar++;
-				cValue = 0;
 			}
 		}
 	return matriz;
