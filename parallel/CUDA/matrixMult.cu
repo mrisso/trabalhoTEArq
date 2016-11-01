@@ -39,7 +39,6 @@ void popularMatriz(float *matriz, int tam, float valor){
 		matriz[i] = valor;
 	}
 }
-
 float *matrixMultDevice(int width, int rep){
 	int size = width*width;
 	int i;
@@ -143,7 +142,7 @@ float *matrixMultDevice(int width, int rep){
 	//Terminar contagem de tempo
 	t = clock() - t;
 	double tempoExePar = ((double)t)/CLOCKS_PER_SEC;
-	printf("%lf",tempoExePar);
+
 	//Copiar resultado para o host
 	error = cudaMemcpy(hC,dC,sizeM,cudaMemcpyDeviceToHost);
     if (error != cudaSuccess)
@@ -152,10 +151,20 @@ float *matrixMultDevice(int width, int rep){
         exit(EXIT_FAILURE);
     }
 
+	t = clock();
+
 	//Executar codigo sequencial para comparação
-	float *hCSeq = multiplicaMatriz(hA,hB,size,rep);
+	float *hCSeq;
+	hCSeq = multiplicaMatriz(hA,hB,width,rep);
+
+	t = clock() - t;
+	double tempoExeSeq = ((double)t)/CLOCKS_PER_SEC;
 
 	int res = compareRes(hC,hCSeq,size);
+
+	printf("Tamanho: %d\n\n",width);
+	printf("Multiplicação Paralela: %lfs\n",tempoExePar);
+	printf("Multiplicação Sequencial: %lfs\n",tempoExeSeq);
 
 	cudaFree(dA);
 	cudaFree(dB);

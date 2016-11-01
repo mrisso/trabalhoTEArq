@@ -1,5 +1,6 @@
 #define ERR_N_ARGS					1
 #define OK							0
+#define FAIL						2
 
 #include "matrixMult.cuh"
 
@@ -40,6 +41,10 @@ int main(int argc, char **argv){
 		}
 
 		free(res);
+		return OK;
 	}
-	return OK;
+	else
+		printf("Multiplicação falou.\n");
+	
+	return FAIL;
 }
