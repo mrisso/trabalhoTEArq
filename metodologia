@@ -1,0 +1,6 @@
+Este projeto pode ser encarado como um estudo comparativo entre duas técnicas de computação: a sequencial e a paralela. Abordaremos cada uma das técnicas diretamente usando as ferramentas ideais para cada e depois faremos um confronto entre os resultados obtidos quanto a desempenho. Para computação sequencial usaremos a linguagem C e para paralela utilizaremos a extensão de C, CUDA.
+Para que as análises entre as técnicas sejam relevantes realizaremos a mesma tarefa, uma multiplicação de matrizes repetidas vezes. Esta multiplicação será abordada pela sequencial utilizando loops enquanto na paralela será feita por um esquema de ladrilhos.
+
+IMAGEM REPRESENTATIVA DE LADRILHOS E LOOPS
+
+Utilizando (nome da ferramenta de análise) poderemos medir o tempo de execução. Haverá 3 casos teste, o primeiro a matriz será multiplicada, no segundo essa mesma multiplicação será repetida 100 vezes e finalmente no útilmo caso 1000 vezes. Com os dados de desempenho colhidos confeccionaremos gráficos expositivos dos resultados.
