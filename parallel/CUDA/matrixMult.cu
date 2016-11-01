@@ -1,32 +1,31 @@
-#define DEBUG					1
-#define TILE_WIDTH				4 //Tamanho do ladrilho é definido aqui para a utilização de memória compartilhada
+#define TILE_WIDTH				32 //Tamanho do ladrilho é definido aqui para a utilização de memória compartilhada
 
 #include "matrixMult.cuh"
 
 //kernel
-__global__ void matrixMultKernel(float *dC, float *dA, float *dB, int width){ 
+__global__ void matrixMultKernel(float *dC, float *dA, float *dB, long width){
 
 	//Utilizar memória compartilhada para o ladrilho
 	__shared__ float dAs[TILE_WIDTH][TILE_WIDTH];
 	__shared__ float dBs[TILE_WIDTH][TILE_WIDTH];
 
-	int bx = blockIdx.x; int by = blockIdx.y;
-	int tx = threadIdx.x; int ty = threadIdx.y;
+	long bx = blockIdx.x; long by = blockIdx.y;
+	long tx = threadIdx.x; long ty = threadIdx.y;
 
 	//Cálculo de linha e coluna
-	int lin = by * TILE_WIDTH + ty;
-	int col = bx * TILE_WIDTH + tx;
+	long lin = by * TILE_WIDTH + ty;
+	long col = bx * TILE_WIDTH + tx;
 	
 	float cValue = 0; //Acumulador
 
 	//Cálculo
 	__syncthreads();
-	for(int k = 0;k < width/TILE_WIDTH ; k++){
+	for(long k = 0;k < width/TILE_WIDTH ; k++){
 		dAs[ty][tx] = dA[lin * width + (k * TILE_WIDTH + tx)];
 		dBs[ty][tx] = dB[(k * TILE_WIDTH + ty) * width + col];
 		__syncthreads();
 
-		for(int i = 0; i<TILE_WIDTH; i++)
+		for(long i = 0; i<TILE_WIDTH; i++)
 			cValue += dAs[ty][k] * dBs[k][tx];
 		__syncthreads();
 	}
@@ -41,7 +40,7 @@ void popularMatriz(float *matriz, int tam, float valor){
 	}
 }
 
-float *matrixMultDevice(int width){
+float *matrixMultDevice(int width, int rep){
 	int size = width*width;
 	int i;
 	int sizeM = size*sizeof(float);
@@ -133,9 +132,18 @@ float *matrixMultDevice(int width){
 	dim3 dimGrid(width/TILE_WIDTH,width/TILE_WIDTH);
 	dim3 dimBlock(TILE_WIDTH,TILE_WIDTH);
 
-	//Realizar multiplicação
-	matrixMultKernel<<<dimGrid, dimBlock>>>(dC,dA,dB,width);
+	//Iniciar contagem de tempo
+	clock_t t;
+	t = clock();
 
+	//Realizar multiplicação
+	for(int i = 0; i<rep; i++)
+		matrixMultKernel<<<dimGrid, dimBlock>>>(dC,dA,dB,width);
+
+	//Terminar contagem de tempo
+	t = clock() - t;
+	double tempoExePar = ((double)t)/CLOCKS_PER_SEC;
+	printf("%lf",tempoExePar);
 	//Copiar resultado para o host
 	error = cudaMemcpy(hC,dC,sizeM,cudaMemcpyDeviceToHost);
     if (error != cudaSuccess)
@@ -144,12 +152,19 @@ float *matrixMultDevice(int width){
         exit(EXIT_FAILURE);
     }
 
+	//Executar codigo sequencial para comparação
+	float *hCSeq = multiplicaMatriz(hA,hB,size,rep);
+
+	int res = compareRes(hC,hCSeq,size);
+
 	cudaFree(dA);
 	cudaFree(dB);
 	cudaFree(dC);
 	free(hA);
 	free(hB);
-	return hC;
+	if(res)
+		return hC;
+	return NULL;
 }
 
 int compareNum(float n1, float n2, float precisao){
@@ -162,9 +177,13 @@ int compareNum(float n1, float n2, float precisao){
 	return 0;
 }
 
-void compareRes(float *mA, float *mB, int size){
+int compareRes(float *mA, float *mB, int size){
+	int correct = 1;
 	for(int i = 0; i<size; i++){
-		if(!compareNum(mA[i],mB[i],1.0))
+		if(!compareNum(mA[i],mB[i],0.01f)){
 			printf("Resultado errado para posição %d: %f!=%f\n",i,mA[i],mB[i]);
+			correct = 0;
+		}
 	}
+	return correct;
 }
