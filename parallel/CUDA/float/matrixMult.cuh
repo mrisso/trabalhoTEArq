@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <time.h>
 extern "C"{
-#include "../../sequential/float/seqMatrix.h"
+#include "../../../sequential/float/seqMatrix.h"
 }
 
 __global__ void matrixMultKernel(float *dC, float *dA, float *dB, long width);
