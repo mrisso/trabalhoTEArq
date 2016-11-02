@@ -21,7 +21,7 @@ $(EXE): $(OBJSCU) $(OBJSC)
 	$(CC) -o $@ $^
 
 $(OBJSC): 
-	$(CC) -c ../../sequential/seqMatrix.c
+	$(CC) -c ../../sequential/float/seqMatrix.c
 
 %.o: %.cu
 	$(CC) -c $(CFLAGS) $^
