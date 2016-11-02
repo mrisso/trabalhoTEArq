@@ -1,0 +1,78 @@
+(256/256) 1 repetição
+Tamanho: 256
+
+Multiplicação Paralela: 0.000023s
+Multiplicação Sequencial: 0.097087s
+Tamanho: 256
+
+Multiplicação Paralela: 0.000024s
+Multiplicação Sequencial: 0.105012s
+Tamanho: 256
+
+Multiplicação Paralela: 0.000021s
+Multiplicação Sequencial: 0.088787s
+(256/256) 100 repetições
+Tamanho: 256
+
+Multiplicação Paralela: 0.000486s
+Multiplicação Sequencial: 7.267342s
+Tamanho: 256
+
+Multiplicação Paralela: 0.000436s
+Multiplicação Sequencial: 7.344324s
+Tamanho: 256
+
+Multiplicação Paralela: 0.000443s
+Multiplicação Sequencial: 7.147069s
+(256/256) 1000 repetições
+Tamanho: 256
+
+Multiplicação Paralela: 0.004153s
+Multiplicação Sequencial: 73.320926s
+Tamanho: 256
+
+Multiplicação Paralela: 0.004337s
+Multiplicação Sequencial: 72.543067s
+Tamanho: 256
+
+Multiplicação Paralela: 0.003118s
+Multiplicação Sequencial: 72.453704s
+(128/128) 1 repetição
+Tamanho: 128
+
+Multiplicação Paralela: 0.000027s
+Multiplicação Sequencial: 0.015854s
+Tamanho: 128
+
+Multiplicação Paralela: 0.000023s
+Multiplicação Sequencial: 0.012435s
+Tamanho: 128
+
+Multiplicação Paralela: 0.000018s
+Multiplicação Sequencial: 0.010442s
+(128/128) 100 repetições
+Tamanho: 128
+
+Multiplicação Paralela: 0.000527s
+Multiplicação Sequencial: 0.817930s
+Tamanho: 128
+
+Multiplicação Paralela: 0.000493s
+Multiplicação Sequencial: 0.819115s
+Tamanho: 128
+
+Multiplicação Paralela: 0.000431s
+Multiplicação Sequencial: 0.809634s
+(128/128) 1000 repetições
+Tamanho: 128
+
+Multiplicação Paralela: 0.004540s
+Multiplicação Sequencial: 7.943178s
+Tamanho: 128
+
+Multiplicação Paralela: 0.004153s
+Multiplicação Sequencial: 8.126915s
+Tamanho: 128
+
+Multiplicação Paralela: 0.003001s
+Multiplicação Sequencial: 7.877748s
